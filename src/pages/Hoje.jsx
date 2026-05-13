@@ -1,10 +1,15 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Flame, Zap, Quote, Calendar, Sparkles, TrendingUp } from 'lucide-react';
+import { Flame, Zap, Quote, Calendar, Sparkles, TrendingUp, BookOpen, Swords } from 'lucide-react';
 import Card from '../components/common/Card.jsx';
 import Badge from '../components/common/Badge.jsx';
+import Button from '../components/common/Button.jsx';
 import DragonAvatar from '../components/dragon/DragonAvatar.jsx';
 import DragonStats from '../components/dragon/DragonStats.jsx';
 import ClassBadge from '../components/dragon/ClassBadge.jsx';
+import EvolutionCinematic from '../components/dragon/EvolutionCinematic.jsx';
+import XPFloating from '../components/dragon/XPFloating.jsx';
+import StudyRegisterModal from '../components/study/StudyRegisterModal.jsx';
 import { useApp } from '../contexts/AppContext.jsx';
 import { getPhraseOfTheDay } from '../constants/phrases.js';
 import { formatDate, formatNumber } from '../utils/format.js';
@@ -12,7 +17,8 @@ import { CLASSES } from '../constants/classes.js';
 import './Hoje.css';
 
 export default function Hoje() {
-  const { user, dragon } = useApp();
+  const { user, dragon, evolution, dismissEvolution, sound, xpFloats } = useApp();
+  const [registerOpen, setRegisterOpen] = useState(false);
   const phrase = getPhraseOfTheDay();
   const classConfig = CLASSES[user.dragonClass];
 
@@ -43,12 +49,15 @@ export default function Hoje() {
       <Card variant="featured" className="page-hoje__hero">
         <div className="page-hoje__hero-grid">
           <div className="page-hoje__dragon">
-            <DragonAvatar
-              stage={dragon.stage}
-              subLevel={dragon.subLevel}
-              dragonClass={user.dragonClass}
-              size="lg"
-            />
+            <div className="page-hoje__dragon-wrapper">
+              <DragonAvatar
+                stage={dragon.stage}
+                subLevel={dragon.subLevel}
+                dragonClass={user.dragonClass}
+                size="lg"
+              />
+              <XPFloating items={xpFloats} />
+            </div>
             <ClassBadge dragonClass={user.dragonClass} size="md" />
           </div>
           <div className="page-hoje__hero-stats">
@@ -60,9 +69,39 @@ export default function Hoje() {
                 </Badge>
               ))}
             </div>
+            <div className="page-hoje__actions">
+              <Button icon={BookOpen} onClick={() => setRegisterOpen(true)} fullWidth>
+                Registrar estudo
+              </Button>
+            </div>
           </div>
         </div>
       </Card>
+
+      <div className="page-hoje__quick">
+        <Card
+          hoverable
+          onClick={() => setRegisterOpen(true)}
+          className="page-hoje__quick-card page-hoje__quick-card--blue"
+        >
+          <BookOpen size={22} />
+          <div>
+            <strong>Teoria</strong>
+            <small>1h ≈ 100 XP base</small>
+          </div>
+        </Card>
+        <Card
+          hoverable
+          onClick={() => setRegisterOpen(true)}
+          className="page-hoje__quick-card page-hoje__quick-card--red"
+        >
+          <Swords size={22} />
+          <div>
+            <strong>Questões</strong>
+            <small>10 questões ≈ 50 XP</small>
+          </div>
+        </Card>
+      </div>
 
       <div className="page-hoje__stats-grid">
         <Card hoverable className="page-hoje__stat-card">
@@ -99,7 +138,7 @@ export default function Hoje() {
             <span className="page-hoje__stat-label">Sessões hoje</span>
             <strong className="page-hoje__stat-value">{sessionsToday(user.dailyLogs)}</strong>
             <small className="page-hoje__stat-meta">
-              {user.dailyLogs.length} registradas
+              {user.dailyLogs.length} totais
             </small>
           </div>
         </Card>
@@ -110,16 +149,16 @@ export default function Hoje() {
         <p>{phrase}</p>
       </Card>
 
-      <Card>
-        <div className="page-hoje__coming-soon">
-          <h3>⚔️ Próximos passos da jornada</h3>
-          <p>
-            Em breve você poderá registrar estudos, enfrentar bosses de bancas e ativar o Modo
-            de Ataque diretamente desta tela. Por enquanto, explore as outras abas para preparar
-            seu edital e personalizar a aventura.
-          </p>
-        </div>
-      </Card>
+      <StudyRegisterModal open={registerOpen} onClose={() => setRegisterOpen(false)} />
+
+      <EvolutionCinematic
+        open={!!evolution}
+        from={evolution?.from}
+        to={evolution?.to}
+        dragonClass={user.dragonClass}
+        onClose={dismissEvolution}
+        onSound={() => sound.play('levelUp')}
+      />
     </div>
   );
 }
