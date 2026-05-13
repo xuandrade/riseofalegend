@@ -1,9 +1,12 @@
 import { PenLine } from 'lucide-react';
-import Card from '../components/common/Card.jsx';
-import EmptyState from '../components/common/EmptyState.jsx';
 import PageHeader from '../components/layout/PageHeader.jsx';
+import EditalMatrix from '../components/edital/EditalMatrix.jsx';
+import { useApp } from '../contexts/AppContext.jsx';
+import { DISCURSIVA_CHECKS } from '../utils/edital.js';
 
 export default function EditaisDiscursiva() {
+  const { editalDiscursiva, setEditalDiscursiva } = useApp();
+
   return (
     <div className="page-stack">
       <PageHeader
@@ -12,13 +15,13 @@ export default function EditaisDiscursiva() {
         subtitle="Para a fase escrita: Estudado, Grifado e Questões. Heatmap visual em 4 níveis para você ver onde precisa reforçar."
       />
 
-      <Card>
-        <EmptyState
-          icon="🖋️"
-          title="Em construção na Fase 2"
-          description="Estrutura espelhada à Objetiva, mas com 3 checkboxes e heatmap de 4 níveis. Pronto para chegar na próxima fase."
-        />
-      </Card>
+      <EditalMatrix
+        kind="discursiva"
+        edital={editalDiscursiva}
+        setEdital={setEditalDiscursiva}
+        checks={DISCURSIVA_CHECKS}
+        heatmapLevels={4}
+      />
     </div>
   );
 }

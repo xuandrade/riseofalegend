@@ -1,9 +1,12 @@
 import { ClipboardList } from 'lucide-react';
-import Card from '../components/common/Card.jsx';
-import EmptyState from '../components/common/EmptyState.jsx';
 import PageHeader from '../components/layout/PageHeader.jsx';
+import EditalMatrix from '../components/edital/EditalMatrix.jsx';
+import { useApp } from '../contexts/AppContext.jsx';
+import { OBJETIVA_CHECKS } from '../utils/edital.js';
 
 export default function EditaisObjetiva() {
+  const { editalObjetiva, setEditalObjetiva } = useApp();
+
   return (
     <div className="page-stack">
       <PageHeader
@@ -12,13 +15,13 @@ export default function EditaisObjetiva() {
         subtitle="Mapeie cada tópico do edital e marque suas conquistas com 5 checkboxes: Lei, Doutrina, Jurisprudência, Questões e Revisão."
       />
 
-      <Card>
-        <EmptyState
-          icon="📜"
-          title="Matriz pronta na Fase 2"
-          description="A árvore de disciplinas com tópicos, checkboxes e heatmap será adicionada na próxima fase. O esqueleto já está preparado para receber a matriz completa."
-        />
-      </Card>
+      <EditalMatrix
+        kind="objetiva"
+        edital={editalObjetiva}
+        setEdital={setEditalObjetiva}
+        checks={OBJETIVA_CHECKS}
+        heatmapLevels={5}
+      />
     </div>
   );
 }

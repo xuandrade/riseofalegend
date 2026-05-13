@@ -52,6 +52,66 @@
   gap: var(--space-4);
 }
 
+.page-hoje__dragon-wrapper {
+  position: relative;
+}
+
+.page-hoje__actions {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.page-hoje__quick {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.page-hoje__quick-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  color: var(--text-primary);
+}
+
+.page-hoje__quick-card strong {
+  display: block;
+  font-weight: 700;
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  line-height: 1.1;
+}
+
+.page-hoje__quick-card small {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.page-hoje__quick-card--blue {
+  border-color: rgba(59, 130, 246, 0.3);
+  background: linear-gradient(135deg, rgba(96, 165, 250, 0.08), white);
+}
+
+.page-hoje__quick-card--blue:hover {
+  border-color: var(--class-filosofo);
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.2);
+}
+
+.page-hoje__quick-card--red {
+  border-color: rgba(239, 68, 68, 0.3);
+  background: linear-gradient(135deg, rgba(248, 113, 113, 0.08), white);
+}
+
+.page-hoje__quick-card--red:hover {
+  border-color: var(--class-gladiador);
+  box-shadow: 0 8px 24px rgba(239, 68, 68, 0.2);
+}
+
+.page-hoje__quick-card--blue svg { color: var(--class-filosofo); }
+.page-hoje__quick-card--red svg { color: var(--class-gladiador); }
+
 .page-hoje__hero-stats {
   display: flex;
   flex-direction: column;
