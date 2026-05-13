@@ -1,0 +1,129 @@
+.rol-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-family: var(--font-body);
+  font-weight: 600;
+  border-radius: var(--radius-xl);
+  cursor: pointer;
+  transition: all var(--t-base);
+  position: relative;
+  overflow: hidden;
+  border: 1px solid transparent;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.rol-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.rol-btn__content {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.rol-btn--sm {
+  padding: 0.5rem 0.875rem;
+  font-size: var(--text-sm);
+  height: 36px;
+}
+
+.rol-btn--md {
+  padding: 0.625rem 1.125rem;
+  font-size: var(--text-base);
+  height: 44px;
+}
+
+.rol-btn--lg {
+  padding: 0.875rem 1.5rem;
+  font-size: var(--text-lg);
+  height: 52px;
+}
+
+.rol-btn--full { width: 100%; }
+
+.rol-btn--primary {
+  background: linear-gradient(135deg, var(--dragon-primary) 0%, var(--dragon-dark) 100%);
+  color: white;
+  box-shadow: var(--shadow-md), 0 0 0 0 var(--dragon-glow);
+}
+
+.rol-btn--primary:hover:not(:disabled) {
+  box-shadow: var(--shadow-lg), 0 0 24px var(--class-mago-glow);
+  filter: brightness(1.05);
+}
+
+.rol-btn--secondary {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--border-default);
+}
+
+.rol-btn--secondary:hover:not(:disabled) {
+  background: var(--bg-tertiary);
+  border-color: var(--dragon-primary);
+}
+
+.rol-btn--ghost {
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.rol-btn--ghost:hover:not(:disabled) {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.rol-btn--danger {
+  background: linear-gradient(135deg, #EF4444 0%, #B91C1C 100%);
+  color: white;
+  box-shadow: var(--shadow-md);
+}
+
+.rol-btn--danger:hover:not(:disabled) {
+  box-shadow: var(--shadow-lg), 0 0 24px rgba(239, 68, 68, 0.4);
+}
+
+.rol-btn--success {
+  background: linear-gradient(135deg, #10B981 0%, #047857 100%);
+  color: white;
+  box-shadow: var(--shadow-md);
+}
+
+.rol-btn--success:hover:not(:disabled) {
+  box-shadow: var(--shadow-lg), 0 0 24px rgba(16, 185, 129, 0.4);
+}
+
+.rol-btn--epic {
+  background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 50%, #F59E0B 100%);
+  color: white;
+  box-shadow: var(--shadow-lg);
+  background-size: 200% 200%;
+  animation: epic-gradient 4s ease infinite;
+}
+
+@keyframes epic-gradient {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.rol-btn--loading::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    110deg,
+    transparent 25%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
