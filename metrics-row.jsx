@@ -163,6 +163,14 @@ function ConcursoDonuts({ concursos, setConcursos }) {
           <input className="input-base" placeholder="Nome do concurso" value={editingC.name}
             autoFocus onKeyDown={e => { if (e.key === 'Enter') setEditing(null); }}
             onChange={e => update(editingC.id, { name: e.target.value })} />
+          <div>
+            <div style={{ color: 'var(--text-dim)', fontSize: 10, marginBottom: 3, fontWeight: 600 }}>Banca (define o boss)</div>
+            <select className="input-base" value={editingC.banca || 'Outras'}
+              onChange={e => update(editingC.id, { banca: e.target.value })}
+              style={{ width: '100%' }}>
+              {(window.ROL_BANCAS_LIST || ['Outras']).map(b => <option key={b} value={b}>{b}</option>)}
+            </select>
+          </div>
           <div style={{ display: 'grid', gap: 8, gridTemplateColumns: '1fr 1fr' }}>
             <div>
               <div style={{ color: 'var(--text-dim)', fontSize: 10, marginBottom: 3, fontWeight: 600 }}>Data da prova</div>
