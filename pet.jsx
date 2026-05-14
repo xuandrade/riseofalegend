@@ -395,6 +395,9 @@ boxShadow: !sick && classCfg ? `0 0 0 1px ${classCfg.colorSoft}, 0 8px 32px -16p
           {classCfg.name.toUpperCase()}
         </span>
       )}
+      {window.DragonSubLevelDots && !sick && (
+        <DragonSubLevelDots xp={xp} accent={info.accent} glow={info.glow} />
+      )}
       {sick && (
         <span className="num" style={{
           fontSize: 9, padding: '2px 7px', borderRadius: 4,

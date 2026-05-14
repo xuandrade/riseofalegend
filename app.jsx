@@ -37,6 +37,9 @@ function AchievementToast({ kind, onDone }) {
     item_escudoConstancia: { title: 'Item: Escudo da Constância 🛡️',  sub: 'Protege 1 dia sem estudo',         icon: '🛡️', color: 'var(--ciano)' },
     item_elixirFlow:       { title: 'Item: Elixir do Flow 🌊',         sub: '2x XP no próximo ataque',          icon: '🌊', color: 'var(--ciano)' },
     item_fragmentoDraconiano: { title: 'Fragmento Draconiano 💎',      sub: '10 = 1 evolução instantânea',      icon: '💎', color: 'var(--tinta)' },
+    challenge_claimed:        { title: 'Desafio semanal completo!',    sub: 'XP e item recebidos',              icon: '🎁', color: 'var(--esmeralda)' },
+    reta_final_unlock:        { title: 'Reta Final ativada 🏁',        sub: 'Essenciais e questões valem 2x XP', icon: '🏁', color: '#F59E0B' },
+    grande_batalha:           { title: 'Grande Batalha à vista! ⚔️',  sub: 'Foco total. Você se preparou.',    icon: '⚔️', color: '#DC2626' },
   };
   const a = A[kind] || A.first_mastered;
   return (
@@ -660,7 +663,9 @@ function App() {
       const day = logs[idx];
       const cross = goalCrossBonus(day, (day.hours||0)-hours, (day.questions||0), s.goals);
       const base = 2 + cross;
-      const bonus = (window.ROL_applyClassBonus ? window.ROL_applyClassBonus(base, { dragonClass: s.dragonClass || 'mago', type: 'teoria' }) : base);
+      let bonus = (window.ROL_applyClassBonus ? window.ROL_applyClassBonus(base, { dragonClass: s.dragonClass || 'mago', type: 'teoria' }) : base);
+      const rf = window.ROL_retaFinalMultiplier ? window.ROL_retaFinalMultiplier(s, { studyType, type: 'teoria' }) : 1;
+      bonus = Math.round(bonus * rf);
       return { ...withStreakState(s, logs), xp: s.xp + bonus };
     });
     applyBossDamage({ hours });
@@ -683,9 +688,13 @@ function App() {
   };
   const handleCheckXp = (delta) => {
     setShared(s => {
-      const gain = delta > 0 && window.ROL_applyClassBonus
+      let gain = delta > 0 && window.ROL_applyClassBonus
         ? window.ROL_applyClassBonus(delta, { dragonClass: s.dragonClass || 'mago', type: 'check' })
         : delta;
+      if (delta > 0 && window.ROL_retaFinalMultiplier) {
+        const rf = window.ROL_retaFinalMultiplier(s, { type: 'check' });
+        gain = Math.round(gain * rf);
+      }
       return { ...s, xp: Math.max(0, s.xp + gain) };
     });
     if (delta > 0) applyBossDamage({ masteredTopic: false, weight: Math.max(1, Math.round(delta)) });
@@ -697,9 +706,13 @@ function App() {
     setShared(s => {
       const sims = [...(s.simulados || []), sim];
       const baseXp = (window.DA.simuladoXp ? window.DA.simuladoXp(sim) : 10);
-      const xpGain = window.ROL_applyClassBonus
+      let xpGain = window.ROL_applyClassBonus
         ? window.ROL_applyClassBonus(baseXp, { dragonClass: s.dragonClass || 'mago', type: 'simulado' })
         : baseXp;
+      if (window.ROL_retaFinalMultiplier) {
+        const rf = window.ROL_retaFinalMultiplier(s, { type: 'simulado' });
+        xpGain = Math.round(xpGain * rf);
+      }
       return { ...s, simulados: sims, xp: (s.xp || 0) + xpGain };
     });
     window.celebrateHighEnergy && window.celebrateHighEnergy();
@@ -777,6 +790,8 @@ function App() {
         {/* ── ABA: HOJE ── */}
         {activeTab === 'hoje' && (
           <>
+            {window.GrandeBatalhaBanner && <GrandeBatalhaBanner shared={shared} />}
+            {window.RetaFinalBanner && !window.ROL_getGrandeBatalha?.(shared) && <RetaFinalBanner shared={shared} />}
             <style>{`@media (max-width: 900px) { .greeting-row { grid-template-columns: 1fr !important; } }`}</style>
             <div className="greeting-row" style={{ display: 'grid', gap: 16, gridTemplateColumns: 'minmax(0,1.2fr) minmax(0,1fr)', marginBottom: 16 }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -823,6 +838,13 @@ function App() {
 
             {/* Bosses ativos — só renderiza se houver concurso cadastrado com data futura */}
             {window.BossList && <BossList shared={shared} />}
+
+            {/* Desafio semanal */}
+            {window.WeeklyChallengeCard && (
+              <section className="anim-slide-up" style={{ marginBottom: 16, animationDelay: '50ms' }}>
+                <WeeklyChallengeCard shared={shared} setShared={setShared} objState={objState} onToast={pushToast} />
+              </section>
+            )}
 
             <section className="anim-slide-up" style={{ marginBottom: 16, animationDelay: '60ms' }}>
               <ConstanciaTracker logs={shared.dailyLogs} bestStreak={shared.bestStreak} />
@@ -924,6 +946,12 @@ function App() {
             {window.InventoryPanel && (
               <section style={{ marginBottom: 14 }}>
                 <InventoryPanel shared={shared} />
+              </section>
+            )}
+
+            {window.StudyScheduleEditor && (
+              <section style={{ marginBottom: 14 }}>
+                <StudyScheduleEditor shared={shared} setShared={setShared} />
               </section>
             )}
 
