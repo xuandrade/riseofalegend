@@ -616,32 +616,39 @@ function daysUntil(iso) {
   return Math.round((then - now) / (1000 * 60 * 60 * 24));
 }
 
-// ── Pet System ──
+// ── Pet System — 6 fases (rascunhadas no estilo Pixar do desenho de referência) ──
+// Cada fase corresponde a um marco visual distinto do dragão roxo:
+//   1 Filhote no Ovo   → bebê dragãozinho enroladinho dentro da casca aberta
+//   2 Dragãozinho      → brincando com blocos de letras (ABC)
+//   3 Aprendiz Curioso → óculos redondos, lendo na escrivaninha
+//   4 Dragão Teen      → óculos + livro grande, asinhas firmes
+//   5 Dragão Mentor    → toga, martelo e pergaminho DPE-SP, estrela acima
+//   6 Lenda Suprema    → trono de livros + bola de cristal + chifres majestosos
 const PET_STAGES = [
-  { stage: 1, name: 'Ovinho Místico',         minXp: 0,    nextXp: 50,
-    color: '#fff5e0', accent: '#C9A961', glow: '#E8C97A', shellColor: '#fff0d8',
-    desc: 'Algo místico está adormecido aqui dentro… A jornada começa em silêncio.' },
-  { stage: 2, name: 'Ovo Trincando',          minXp: 50,   nextXp: 150,
-    color: '#fff0d0', accent: '#5B47B8', glow: '#7B67D8', shellColor: '#ffe5b8',
-    desc: 'A casca começa a ceder! Sinais de vida pulsam por dentro.' },
-  { stage: 3, name: 'Filhote Recém-Eclodido', minXp: 150,  nextXp: 400,
-    color: '#e8e0ff', accent: '#7B67D8', glow: '#5B47B8',
-    desc: 'Eclodiu! Olhos enormes descobrem o mundo pela primeira vez. 🌱' },
-  { stage: 4, name: 'Dragãozinho Curioso',    minXp: 400,  nextXp: 900,
-    color: '#d8d0f8', accent: '#5B47B8', glow: '#7B67D8',
-    desc: 'Pequenos chifrinhos despontaram. Já ensaia os primeiros voos curtos.' },
-  { stage: 5, name: 'Dragão Jovem',           minXp: 900,  nextXp: 2000,
-    color: '#c8b8f8', accent: '#4A37A8', glow: '#7B67D8',
-    desc: 'Asas mais firmes, olhar determinado. Sua jornada se intensifica. ✨' },
-  { stage: 6, name: 'Dragão Adulto',          minXp: 2000, nextXp: 4000,
-    color: '#a8a0e8', accent: '#3A2780', glow: '#5B47B8',
-    desc: 'Forma plena. Sabedoria nos olhos. Pronto para grandes batalhas jurídicas.' },
-  { stage: 7, name: 'Dragão Concurseiro',     minXp: 4000, nextXp: 7000,
-    color: '#9488f8', accent: '#2A1860', glow: '#E85D5D',
-    desc: 'Vestiu a toga! Segura o livro da Lei. Pronto para a posse. ⚖️' },
-  { stage: 8, name: 'Empossado(a)',           minXp: 7000, nextXp: Infinity,
-    color: '#b0a4f8', accent: '#C9A961', glow: '#E8C97A',
-    desc: 'Forma final. Aura de justiça encarnada. A aprovação chegou. 👑' },
+  { stage: 1, name: 'Filhote no Ovo',         minXp: 0,    nextXp: 100,
+    color: '#E0CFF5', accent: '#9B7CC8', glow: 'rgba(155,124,200,0.65)', shellColor: '#FFF5E8',
+    flavor: 'Recém-saído da casca, ainda sonhando com o mundo. 🥚✨',
+    desc: 'Sua jornada começa em silêncio. Cada minuto de estudo fortalece esse coraçãozinho.' },
+  { stage: 2, name: 'Dragãozinho Brincalhão', minXp: 100,  nextXp: 400,
+    color: '#C9A8E8', accent: '#8A6FCB', glow: 'rgba(138,111,203,0.7)',
+    flavor: 'Curioso e travesso, descobre o ABC da Lei. 🔤',
+    desc: 'Pulando entre blocos de aprendizado, começa a desvendar o básico da jornada.' },
+  { stage: 3, name: 'Aprendiz Curioso',       minXp: 400,  nextXp: 1200,
+    color: '#B595E0', accent: '#7A5FB0', glow: 'rgba(155,108,210,0.75)',
+    flavor: 'Óculos redondos, mente afiada. 👓📖',
+    desc: 'Na escrivaninha, devora cada artigo com olhar atento e anota tudo.' },
+  { stage: 4, name: 'Dragão Adolescente',     minXp: 1200, nextXp: 2800,
+    color: '#A582DE', accent: '#6A4FA0', glow: 'rgba(166,128,224,0.8)',
+    flavor: 'Asas firmes, foco intenso. 📚',
+    desc: 'Capítulos inteiros desaparecem antes do fim do dia. Sabedoria crescendo.' },
+  { stage: 5, name: 'Dragão Mentor',          minXp: 2800, nextXp: 5500,
+    color: '#8E5FD0', accent: '#5A3A98', glow: 'rgba(180,120,255,0.85)',
+    flavor: 'Veste a toga, ergue o martelo da justiça. ⚖️📜',
+    desc: 'Domínio crescente da DPE-SP. A toga já cai como segunda pele.' },
+  { stage: 6, name: 'Dragão Lendário',        minXp: 5500, nextXp: Infinity,
+    color: '#7A3FC0', accent: '#4A2D88', glow: 'rgba(200,140,255,0.95)',
+    flavor: 'Trono de livros, bola de cristal da sabedoria. 🐉👑',
+    desc: 'Forma suprema. A aprovação é apenas a próxima respiração.' },
 ];
 
 function getPetStageInfo(xp) {
