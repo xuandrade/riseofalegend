@@ -27,6 +27,16 @@ function AchievementToast({ kind, onDone }) {
     class_filosofo: { title: 'Classe: Filósofo 📚',          sub: 'Teoria > 60% · +20% XP em teoria',     icon: '📚', color: 'var(--petroleo)' },
     class_gladiador:{ title: 'Classe: Gladiador ⚔️',         sub: 'Questões > 60% · +20% XP em questões', icon: '⚔️', color: 'var(--coral)' },
     exam_saved:     { title: 'Resultado salvo',              sub: 'Adicionado ao Desempenho',             icon: '📊', color: 'var(--esmeralda)' },
+    boss_defeated:  { title: 'Boss derrotado! 🏆',           sub: 'Você recebeu um Fragmento Draconiano', icon: '🐲', color: 'var(--esmeralda)' },
+    attack_paused:  { title: 'Ataque interrompido',          sub: '−50 XP · Combo perdido',               icon: '💔', color: '#DC2626' },
+    attack_combo3:  { title: 'Combo de 3 ataques! 🔥',       sub: 'Continue sem pausar para mais XP',     icon: '🔥', color: '#f59e0b' },
+    attack_combo7:  { title: 'Implacável! 7 dias seguidos',  sub: 'Você ganhou um Elixir do Flow',        icon: '⚡', color: 'var(--ciano)' },
+    attack_master14:{ title: 'Disciplina de Aço · 14 dias', sub: 'Fragmento Draconiano garantido',      icon: '🛡️', color: 'var(--tinta)' },
+    item_pocaoFoco:        { title: 'Item: Poção de Foco 🧪',          sub: 'Próxima sessão: +50% XP',          icon: '🧪', color: 'var(--esmeralda)' },
+    item_cafeGotico:       { title: 'Item: Café Gótico ☕',             sub: '+25% XP por 2 horas',              icon: '☕', color: '#8B4513' },
+    item_escudoConstancia: { title: 'Item: Escudo da Constância 🛡️',  sub: 'Protege 1 dia sem estudo',         icon: '🛡️', color: 'var(--ciano)' },
+    item_elixirFlow:       { title: 'Item: Elixir do Flow 🌊',         sub: '2x XP no próximo ataque',          icon: '🌊', color: 'var(--ciano)' },
+    item_fragmentoDraconiano: { title: 'Fragmento Draconiano 💎',      sub: '10 = 1 evolução instantânea',      icon: '💎', color: 'var(--tinta)' },
   };
   const a = A[kind] || A.first_mastered;
   return (
@@ -527,6 +537,11 @@ function App() {
       const cross = noXp ? 0 : goalCrossBonus(day, (day.hours||0)-(logEntry.hours||0), (day.questions||0)-(logEntry.questions||0), s.goals);
       return { ...withStreakState(s, logs), xp: s.xp + cross + (noXp ? 0 : bonusXp) };
     });
+    applyBossDamage({
+      hours: logEntry.hours || 0,
+      questions: logEntry.questions || 0,
+      reviews: logEntry.reviews || 0,
+    });
     window.celebrateLight && window.celebrateLight();
   };
 
@@ -616,6 +631,26 @@ function App() {
     });
   };
 
+  // Aplica dano nos bosses ativos e celebra derrotas
+  const applyBossDamage = (damageContext) => {
+    setShared(s => {
+      if (!window.ROL_calculateDamage || !window.ROL_applyDamageToAllBosses) return s;
+      const dmg = window.ROL_calculateDamage(damageContext);
+      if (dmg <= 0) return s;
+      const { bossesState, defeated } = window.ROL_applyDamageToAllBosses(s, dmg);
+      let next = { ...s, bossesState };
+      // Para cada boss derrotado: conquista + drop garantido
+      if (defeated.length > 0) {
+        defeated.forEach((b) => {
+          setTimeout(() => pushToast('boss_defeated'), 100);
+          window.celebrateVictory && window.celebrateVictory();
+          if (window.ROL_grantItem) next = window.ROL_grantItem(next, 'fragmentoDraconiano');
+        });
+      }
+      return next;
+    });
+  };
+
   const handleSession = ({ minutes, subjectId, discipline, studyType, note }) => {
     const today = new Date().toISOString().slice(0,10);
     const hours = minutes / 60;
@@ -628,6 +663,8 @@ function App() {
       const bonus = (window.ROL_applyClassBonus ? window.ROL_applyClassBonus(base, { dragonClass: s.dragonClass || 'mago', type: 'teoria' }) : base);
       return { ...withStreakState(s, logs), xp: s.xp + bonus };
     });
+    applyBossDamage({ hours });
+    if (window.ROL_completeAttackSession) window.ROL_completeAttackSession(setShared, pushToast, { minutes });
     if (minutes >= 90) pushToast('marathon');
     window.celebrateVictory();
   };
@@ -644,12 +681,15 @@ function App() {
       setShared(s => ({ ...s, achievements: [...s.achievements, 'first_mastered'] }));
     }
   };
-  const handleCheckXp = (delta) => setShared(s => {
-    const gain = delta > 0 && window.ROL_applyClassBonus
-      ? window.ROL_applyClassBonus(delta, { dragonClass: s.dragonClass || 'mago', type: 'check' })
-      : delta;
-    return { ...s, xp: Math.max(0, s.xp + gain) };
-  });
+  const handleCheckXp = (delta) => {
+    setShared(s => {
+      const gain = delta > 0 && window.ROL_applyClassBonus
+        ? window.ROL_applyClassBonus(delta, { dragonClass: s.dragonClass || 'mago', type: 'check' })
+        : delta;
+      return { ...s, xp: Math.max(0, s.xp + gain) };
+    });
+    if (delta > 0) applyBossDamage({ masteredTopic: false, weight: Math.max(1, Math.round(delta)) });
+  };
 
   const setConcursos = (updater) => setShared(s => ({ ...s, concursos: typeof updater === 'function' ? updater(s.concursos) : updater }));
 
@@ -765,8 +805,9 @@ function App() {
                   <button className="btn-neon" onClick={() => setSessionLogOpen(true)} style={{ fontSize: 12 }}>
                     ✏️ Registrar sessão
                   </button>
-                  <button className="btn-ghost" onClick={() => setPomodoroOpen(true)} style={{ fontSize: 12 }}>
-                    🛡 Blindado
+                  <button className="btn-ghost" onClick={() => setPomodoroOpen(true)}
+                    style={{ fontSize: 12, color: '#DC2626', borderColor: 'rgba(220,38,38,0.3)', background: 'rgba(220,38,38,0.05)', fontWeight: 700 }}>
+                    ⚔️ Modo de Ataque
                   </button>
                 </div>
 
@@ -779,6 +820,9 @@ function App() {
                 </div>
               </div>
             </div>
+
+            {/* Bosses ativos — só renderiza se houver concurso cadastrado com data futura */}
+            {window.BossList && <BossList shared={shared} />}
 
             <section className="anim-slide-up" style={{ marginBottom: 16, animationDelay: '60ms' }}>
               <ConstanciaTracker logs={shared.dailyLogs} bestStreak={shared.bestStreak} />
@@ -877,6 +921,12 @@ function App() {
                 <button className="btn-neon" onClick={() => setGoalsOpen(true)} style={{ fontSize: 13 }}>🎯 Configurar metas</button>
               </div>
             </section>
+            {window.InventoryPanel && (
+              <section style={{ marginBottom: 14 }}>
+                <InventoryPanel shared={shared} />
+              </section>
+            )}
+
             <section style={{ marginBottom: 14 }}>
               <BackupSection shared={shared} objState={objState} discState={discState}
                 onRestore={handleRestore} onReset={handleReset} onToast={pushToast} />
